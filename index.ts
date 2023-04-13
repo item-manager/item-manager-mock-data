@@ -167,7 +167,7 @@ const createRandomItem = async (): Promise<number | undefined> => {
   ]);
 
   const priority =
-    faker.helpers.maybe(() => faker.helpers.arrayElement([1, 2, 3, 4, 5]), {
+    faker.helpers.maybe(() => faker.helpers.arrayElement([1, 2, 3, 4, 5, 6]), {
       probability: 0.1,
     }) || 0;
 
