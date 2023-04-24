@@ -21,19 +21,24 @@ const { users, auth, locations, labels, items, instance } = api;
 let locationNos: number[];
 let labelNos: number[];
 
-const password = "string";
+const password = "aA123456";
 
 function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
   return value !== null && value !== undefined;
 }
 
-const createRandomUser = async (): Promise<string> => {
-  const uuid = faker.datatype.uuid();
-  const id = `tester_${uuid}`;
+const createRandomUser = async (): Promise<string | undefined> => {
+  const id = `tester_${faker.helpers.regexpStyleStringParse("[1-999]")}`;
+  const username = faker.animal
+    .dog()
+    .replace(/\s/g, "")
+    .substring(0, 10)
+    .trim();
+
   try {
     await users.createUser({
       id,
-      username: `${id}_nickname`,
+      username,
       password,
     });
     console.log("created user", id);
@@ -47,7 +52,7 @@ const createRandomUser = async (): Promise<string> => {
         e.config?.data
       );
     }
-    throw e;
+    // throw e;
   }
 };
 
@@ -330,18 +335,27 @@ const randomConsumeItem = async (
   }
 };
 
+const logout = async () => {
+  try {
+    await api.auth.logout();
+  } catch {}
+};
+
 (async () => {
-  // 로그인
-  // await login('tester');
+  const userIds = await Promise.all(
+    Array.from({ length: 10 }).map(() => createRandomUser())
+  );
 
-  // const userIds = await Promise.all(
-  //   Array.from({ length: 1 }).map(() => createRandomUser())
-  // );
+  console.log({ userIds });
 
-  const userIds = ["string"];
+  // const userIds = ["string"];
 
-  for (const userId of userIds) {
+  const filteredUserIds = userIds.filter(notEmpty);
+  for (const userId of filteredUserIds) {
     console.group(userId);
+
+    // 로그아웃
+    await logout();
 
     // 로그인
     await login(userId);
@@ -372,4 +386,6 @@ const randomConsumeItem = async (
 
     console.groupEnd();
   }
+
+  console.log({ filteredUserIds }, "finished");
 })();
